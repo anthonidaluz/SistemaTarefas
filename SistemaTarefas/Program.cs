@@ -1,3 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using SistemaTarefas.Data;
+using SistemaTarefas.Repositorios;
+using SistemaTarefas.Repositorios.Interfaces;
+
 namespace SistemaTarefas
 {
     public class Program
@@ -13,6 +18,12 @@ namespace SistemaTarefas
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddEntityFrameworkSqlServer().AddDbContext<SistemaTarefasDBContext>(
+                options=> options.UseSqlServer(builder.Configuration.GetConnectionString("DataBase"))
+                );
+
+            builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
