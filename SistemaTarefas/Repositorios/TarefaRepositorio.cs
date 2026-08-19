@@ -62,12 +62,12 @@ namespace SistemaTarefas.Repositorios
 
         public async Task<TarefaModel> BuscarPorId(int id)
         {
-            return await _dbContext.Tarefas.FirstOrDefaultAsync(x => x.Id == id);
+            return await _dbContext.Tarefas.Include(x => x.Usuario).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<List<TarefaModel>> BuscarTodasTarefas()
         {
-            return await _dbContext.Tarefas.ToListAsync();
+            return await _dbContext.Tarefas.Include(x => x.Usuario).ToListAsync();
         }
     }
 }
