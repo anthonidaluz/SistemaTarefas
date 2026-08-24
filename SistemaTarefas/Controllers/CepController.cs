@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SistemaTarefas.Integracao;
 using SistemaTarefas.Integracao.Interfaces;
@@ -6,6 +7,7 @@ using SistemaTarefas.Integracao.Response;
 
 namespace SistemaTarefas.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CepController : ControllerBase
@@ -19,11 +21,11 @@ namespace SistemaTarefas.Controllers
 
         [HttpGet("{cep}")]
 
-        public async Task <ActionResult<ViaCepResponse>> ListarDadosEndereco(string cep)
+        public async Task<ActionResult<ViaCepResponse>> ListarDadosEndereco(string cep)
         {
             var responseData = await _viaCepIntegracao.ObterDadosViaCep(cep);
 
-            if(responseData == null)
+            if (responseData == null)
             {
                 return BadRequest("CEP não encontrado");
             }

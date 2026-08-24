@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens.Experimental;
 using Refit;
 using SistemaTarefas.Data;
 using SistemaTarefas.Integracao;
@@ -6,13 +9,18 @@ using SistemaTarefas.Integracao.Interfaces;
 using SistemaTarefas.Integracao.Refit;
 using SistemaTarefas.Repositorios;
 using SistemaTarefas.Repositorios.Interfaces;
+using System.Text;
 
 namespace SistemaTarefas
 {
     public class Program
     {
+
+
         public static void Main(string[] args)
         {
+            string chaveSecreta = "8168cc34-f954-4485-90ec-4392d9ec8a86";
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -35,6 +43,25 @@ namespace SistemaTarefas
                 c.BaseAddress = new Uri("https://viacep.com.br/");
             });
 
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "sua_empresa",
+                    ValidAudience = "sua_aplicacao",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chaveSecreta)),
+
+                };
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -46,6 +73,7 @@ namespace SistemaTarefas
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
