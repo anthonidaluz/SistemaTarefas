@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Experimental;
+using Microsoft.OpenApi;
 using Refit;
 using SistemaTarefas.Data;
 using SistemaTarefas.Integracao;
@@ -28,7 +29,32 @@ namespace SistemaTarefas
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+
+            const string esquemaJwt = JwtBearerDefaults.AuthenticationScheme;
+
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Sistema de Tarefas - API",
+                    Version = "v1"
+                });
+
+                c.AddSecurityDefinition(esquemaJwt, new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Description = "Entre com o JWT Bearer token",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT"
+                });
+
+                c.AddSecurityRequirement(document => new()
+                {
+                    [new OpenApiSecuritySchemeReference(esquemaJwt, document)] = []
+                });
+            });
 
             builder.Services.AddEntityFrameworkSqlServer().AddDbContext<SistemaTarefasDBContext>(
                 options => options.UseSqlServer(builder.Configuration.GetConnectionString("DataBase"))
